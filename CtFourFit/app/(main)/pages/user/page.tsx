@@ -3,19 +3,13 @@ import { Button } from 'primereact/button';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Dialog } from 'primereact/dialog';
-import { FileUpload } from 'primereact/fileupload';
-import { InputNumber, InputNumberValueChangeEvent } from 'primereact/inputnumber';
 import { InputText } from 'primereact/inputtext';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton, RadioButtonChangeEvent } from 'primereact/radiobutton';
-import { Rating } from 'primereact/rating';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
-import { Demo } from '@/types';
 import { UserService } from '@/demo/service/AuthService';
-import { UsersService } from '@/demo/service/AuthsService';
+
 
 
 /* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
@@ -26,12 +20,12 @@ const User = () => {
         sobreNome: '',
         celular: '',
         email: '',
-        description:''
+       
   
     };
     
 
-    const [users, setUsers] = useState(null);/* minha tabela*/
+    const [users, setUsers] = useState<Auth.User[]>([]); // Inicialização como array vazio
     const [usersDialog, setUsersDialog] = useState(false);       /* cadastra produto*/
     const [deleteUserDialog, setDeleteUserDialog] = useState(false);
     const [deleteUsersDialog, setDeleteUsersDialog] = useState(false);
@@ -79,38 +73,48 @@ const User = () => {
     
 
   /* Toast  criar e atualizar o produto */
-    const saveUser = () => {
-        setSubmitted(true);
-
-        if (user.primeiroNome.trim()) {
-            let _users = [...(users as any)];
-            let _user = { ...user };
-            if (user.id) {
-                const index = findIndexById(user.id);
-
-                _users[index] = _user;
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Usuário atualizado com sucesso',
-                    life: 3000
-                });
-            } else {
-                _user.id = createId();
-                _users.push(_user);
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Usuário cadastrado com sucesso',
-                    life: 3000
-                });
-            }
-
-            setUsers(_users as any);
-            setUsersDialog(false);
-            setUser(emptyUser);
+  const saveUser = async () => {
+    setSubmitted(true);
+  console.log('teste');
+    if (user.primeiroNome.trim()) {
+        console.log('teste1');
+      try {
+        console.log('teste2');
+        if (user.id) {
+          // Se for uma atualização (editar)
+          await UserService.updateUser(user.id, user);
+          toast.current?.show({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Usuário atualizado com sucesso',
+            life: 3000,
+          });
+        } else {
+          // Se for um novo cadastro
+          const newUser = await UserService.createUser(user);
+          setUsers([...users, newUser]); // Adiciona o novo usuário à lista
+          toast.current?.show({
+            severity: 'success',
+            summary: 'Sucesso',
+            detail: 'Usuário cadastrado com sucesso',
+            life: 3000,
+          });
         }
-    };
+  
+        setUsersDialog(false);
+        setUser(emptyUser);
+      } catch (error) {
+        console.error('Erro ao salvar usuário:', error);
+        toast.current?.show({
+          severity: 'error',
+          summary: 'Erro',
+          detail: 'Falha ao salvar usuário',
+          life: 3000,
+        });
+      }
+    }
+  };
+  
 
 
      /* editar e excluir*/
@@ -362,8 +366,7 @@ const User = () => {
 
                     
                
-                    <Dialog visible={usersDialog} style={{ width: '450px' }} header="Detalhes do produto" modal className="p-fluid" footer={userDialogFooter} onHide={hideDialog}>
-                        
+                    <Dialog visible={usersDialog} style={{ width: '450px' }} header="Cadastro de usuário" modal className="p-fluid" footer={userDialogFooter} onHide={hideDialog}>
                         <div className="field">
                             <label htmlFor="primeironome">Name</label>
                             <InputText
@@ -426,17 +429,40 @@ const User = () => {
 
                             {submitted && !user.email && <small className="p-invalid">Email é obrigatório.</small>}
                         </div>
+                        <div className="field">
+  <label htmlFor="password">Senha</label>
+  <InputText
+    id="password"
+    type="password"
+    value={user.password}
+    onChange={(e) => onInputChange(e, 'password')}
+    required
+    className={classNames({
+      'p-invalid': submitted && !user.password
+    })}
+  />
+  {submitted && !user.password && <small className="p-invalid">Senha é obrigatória.</small>}
+</div>
+
+<div className="field">
+  <label htmlFor="confirmPassword">Confirme a Senha</label>
+  <InputText
+    id="confirmPassword"
+    type="password"
+    value={user.confirmPassword}
+    onChange={(e) => onInputChange(e, 'confirmPassword')}
+    required
+    className={classNames({
+      'p-invalid': submitted && !user.confirmPassword
+    })}
+  />
+  {submitted && !user.confirmPassword && <small className="p-invalid">Confirme a senha é obrigatório.</small>}
+</div>
 
 
-
-                        
+ 
                         
                     </Dialog>
-
-
-
-
-
                 
                     <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteUserDialogFooter} onHide={hideDeleteUserDialog}>
                         <div className="flex align-items-center justify-content-center">

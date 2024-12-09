@@ -10,16 +10,48 @@ const api = axios.create({
 
 export const UserService = {
   getUsers() {
-      return api.get('/auth/buscarusuariosativos', {
-          headers: { 'Cache-Control': 'no-cache' }
-      })
+    return api.get('/auth/buscarusuariosativos', {
+      headers: { 'Cache-Control': 'no-cache' },
+    })
       .then((response) => {
-          console.log('Dados retornados pela API:', response.data);
-          return response.data as Auth.User[];
+        return response.data as Auth.User[];
       })
       .catch((error) => {
-          console.error('Erro ao buscar usuários:', error);
-          throw error;
+        throw error;
+      });
+  },
+
+  // Criar usuário
+  createUser(userData: Auth.User) {
+    return api.post('/auth/register', userData)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        console.error('Erro ao criar usuário:', error);
+        throw error;
+      });
+  },
+
+  // Atualizar usuário
+  updateUser(userId: string, updatedData: Partial<Auth.User>) {
+    return api.put(`/auth/atualizarusuario/${userId}`, updatedData)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        throw error;
+      });
+  },
+
+  // Deletar usuário
+  deleteUser(userId: string) {
+    return api.delete(`/auth/deletarusuario/${userId}`)
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        throw error;
       });
   },
 };

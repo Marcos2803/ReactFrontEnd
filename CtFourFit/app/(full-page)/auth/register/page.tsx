@@ -32,7 +32,6 @@ const RegisterPage = () => {
       return;
     }
     try {
-     console.log('aquiu');
       // Enviar a solicitação de registro para o endpoint correto
       const response = await api.post('/auth/register', {
         PrimeiroNome: primeironome,
