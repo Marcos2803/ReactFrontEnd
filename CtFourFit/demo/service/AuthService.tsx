@@ -22,10 +22,11 @@ export const UserService = {
   },
 
   // Criar usuário
-  createUser(userData: Auth.User) {
+  createUser(userData: any) {
     return api.post('/auth/register', userData)
+
       .then((response) => {
-        return response.data;
+        return response.data as Auth.User[];
       })
       .catch((error) => {
         console.error('Erro ao criar usuário:', error);

@@ -425,21 +425,7 @@ const Crud = () => {
 
                             {submitted && !product.name && <small className="p-invalid">Nome é obrigatório.</small>}
                         </div>
-                        <div className="field">
-                            <label htmlFor="name">Name</label>
-                            <InputText
-                                id="name"
-                                value={product.name}
-                                onChange={(e) => onInputChange(e, 'name')}
-                                required
-                                autoFocus
-                                className={classNames({
-                                    'p-invalid': submitted && !product.name
-                                })}
-                            />
-
-                            {submitted && !product.name && <small className="p-invalid">Nome é obrigatório.</small>}
-                        </div>
+                        
                         <div className="field">
                             <label htmlFor="description">Descrição</label>
                             <InputTextarea id="description" value={product.description} onChange={(e) => onInputChange(e, 'description')} required rows={3} cols={20} />

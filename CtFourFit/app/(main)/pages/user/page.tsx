@@ -20,6 +20,8 @@ const User = () => {
         sobreNome: '',
         celular: '',
         email: '',
+        password:'' ,
+        confirmPassword: '',
        
   
     };
@@ -75,11 +77,7 @@ const User = () => {
   /* Toast  criar e atualizar o produto */
   const saveUser = async () => {
     setSubmitted(true);
-  console.log('teste');
-    if (user.primeiroNome.trim()) {
-        console.log('teste1');
       try {
-        console.log('teste2');
         if (user.id) {
           // Se for uma atualização (editar)
           await UserService.updateUser(user.id, user);
@@ -112,7 +110,7 @@ const User = () => {
           life: 3000,
         });
       }
-    }
+    
   };
   
 
@@ -158,14 +156,6 @@ const User = () => {
         return index;
     };
 
-    const createId = () => {
-        let id = '';
-        let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (let i = 0; i < 5; i++) {
-            id += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return id;
-    };
 
     const exportCSV = () => {
         dt.current?.exportCSV();
@@ -232,7 +222,7 @@ const User = () => {
 
 
     
-
+    /* os dados do banco passa por aqui */
     const idBodyTemplate = (rowData: Auth.User) => {
         return (
             <>
@@ -429,36 +419,42 @@ const User = () => {
 
                             {submitted && !user.email && <small className="p-invalid">Email é obrigatório.</small>}
                         </div>
-                        <div className="field">
-  <label htmlFor="password">Senha</label>
-  <InputText
-    id="password"
-    type="password"
-    value={user.password}
-    onChange={(e) => onInputChange(e, 'password')}
-    required
-    className={classNames({
-      'p-invalid': submitted && !user.password
-    })}
-  />
-  {submitted && !user.password && <small className="p-invalid">Senha é obrigatória.</small>}
-</div>
+                        
 
-<div className="field">
-  <label htmlFor="confirmPassword">Confirme a Senha</label>
-  <InputText
-    id="confirmPassword"
-    type="password"
-    value={user.confirmPassword}
-    onChange={(e) => onInputChange(e, 'confirmPassword')}
-    required
-    className={classNames({
-      'p-invalid': submitted && !user.confirmPassword
-    })}
-  />
-  {submitted && !user.confirmPassword && <small className="p-invalid">Confirme a senha é obrigatório.</small>}
-</div>
+                            <div className="field">
+                            <label htmlFor="password">Senha</label>
+                            <InputText
+                                id="password"
+                                type="password"
+                                value={user.password}
+                                onChange={(e) => onInputChange(e, 'password')}
+                                required
+                                autoComplete="new-password"
+                                className={classNames({
+                                'p-invalid': submitted && !user.password
+                                })}
+                            />
+                            {submitted && !user.password && <small className="p-invalid">Senha é obrigatória.</small>}
+                            </div>
 
+                            <div className="field">
+                            <label htmlFor="confirmPassword">Confirme a Senha</label>
+                            <InputText
+                                id="confirmPassword"
+                                type="password"
+                                value={user.confirmPassword}
+                                onChange={(e) => onInputChange(e, 'confirmPassword')}
+                                required
+                                autoComplete="new-password"
+                                className={classNames({
+                                'p-invalid': submitted && !user.confirmPassword
+                                })}
+                            />
+                            {submitted && !user.confirmPassword && <small className="p-invalid">Confirme a senha é obrigatória.</small>}
+                            {submitted && user.password && user.confirmPassword && user.password !== user.confirmPassword && (
+                            <small className="p-invalid">As senhas não coincidem.</small>
+        )}
+                            </div>
 
  
                         

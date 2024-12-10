@@ -136,7 +136,6 @@ declare namespace Demo {
     type Aluno = {
         id?: string;
         code?: string;
-        name: string;
         nome: string;
         description: string;
         image?: string;
