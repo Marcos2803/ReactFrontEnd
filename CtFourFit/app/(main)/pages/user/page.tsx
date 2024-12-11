@@ -78,16 +78,7 @@ const User = () => {
   const saveUser = async () => {
     setSubmitted(true);
       try {
-        if (user.id) {
-          // Se for uma atualização (editar)
-          await UserService.updateUser(user.id, user);
-          toast.current?.show({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Usuário atualizado com sucesso',
-            life: 3000,
-          });
-        } else {
+        
           // Se for um novo cadastro
           const newUser = await UserService.createUser(user);
           setUsers([...users, newUser]); // Adiciona o novo usuário à lista
@@ -97,7 +88,7 @@ const User = () => {
             detail: 'Usuário cadastrado com sucesso',
             life: 3000,
           });
-        }
+        
   
         setUsersDialog(false);
         setUser(emptyUser);
