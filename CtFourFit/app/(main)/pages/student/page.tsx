@@ -35,7 +35,6 @@ const Aluno = () => {
 
     const [alunos, setAlunos] = useState(null);
     const [alunosDialog, setAlunosDialog] = useState(false);
-    console.log('aqui banana');     /* cadastra produto*/
     const [deleteAlunoDialog, setDeleteAlunoDialog] = useState(false);
     const [deleteAlunosDialog, setDeleteAlunosDialog] = useState(false);
     const [aluno, setAluno] = useState<Demo.Aluno>(emptyAluno);

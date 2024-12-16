@@ -20,8 +20,7 @@ const User = () => {
         sobreNome: '',
         celular: '',
         email: '',
-        password:'' ,
-        confirmPassword: '',
+
        
   
     };
@@ -42,8 +41,7 @@ const User = () => {
     
     useEffect(() => {
         UserService.getUsers().then((data: any) => {
-            console.log('Dados retornados:', data);
-            setUsers(data as any);
+        setUsers(data as any);
         });
     }, []);
 
@@ -77,31 +75,72 @@ const User = () => {
   /* Toast  criar e atualizar o produto */
   const saveUser = async () => {
     setSubmitted(true);
-      try {
-        
-          // Se for um novo cadastro
-          const newUser = await UserService.createUser(user);
-          setUsers([...users, newUser]); // Adiciona o novo usuário à lista
+  
+    // Verifica se o campo obrigatório 'nome' do usuário está preenchido
+    
+      let _users = [...users]; // Clona a lista de usuários
+      let _user = { ...user }; // Clona o objeto do usuário atual
+
+  
+      if (user.id) {
+        // Se existir um ID, atualiza o usuário existente
+        try {
+          const updatedUser = await UserService.updateUser(user.id, _user);
+          const index = _users.findIndex((x) => x.id === user.id);
+  
+          if (index !== -1) {
+          const updatedUsers = [..._users]; // Cria uma nova cópia do array
+          updatedUsers[index] = { ...updatedUsers[index], ...updatedUser }; // Atualiza o usuário na nova cópia
+           setUsers(updatedUsers); // Atualiza o estado com a nova cópia
+        }
+          setUser(updatedUser);
           toast.current?.show({
             severity: 'success',
             summary: 'Sucesso',
-            detail: 'Usuário cadastrado com sucesso',
+            detail: 'Usuário atualizado com sucesso',
             life: 3000,
           });
-        
-  
-        setUsersDialog(false);
-        setUser(emptyUser);
-      } catch (error) {
-        console.error('Erro ao salvar usuário:', error);
-        toast.current?.show({
-          severity: 'error',
-          summary: 'Erro',
-          detail: 'Falha ao salvar usuário',
-          life: 3000,
-        });
+        } catch (error) {
+          console.error('Erro ao atualizar usuário:', error);
+          toast.current?.show({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Falha ao atualizar usuário',
+            life: 3000,
+          });
+        }
+      } else {
+        // Se não existir um ID, cadastra um novo usuário com a senha padrão
+          const defaultPassword = '@Teste321';
+          const userWithPassword = {
+          ..._user,
+          password: defaultPassword,
+          passwordConfirmn: defaultPassword,
+        };
+        try {
+          const newUser = await UserService.createUser(userWithPassword);
+         _users.push(newUser); // Adiciona o novo usuário à lista
+           toast.current?.show({
+           severity: 'success',
+           summary: 'Sucesso',
+           detail: 'Usuário cadastrado com sucesso',
+           life: 3000,
+          });
+        } catch (error) {
+            console.error('Erro ao cadastrar usuário:', error);
+            toast.current?.show({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Falha ao cadastrar usuário',
+            life: 3000,
+          });
+        }
       }
-    
+  
+      // Atualiza o estado da lista de usuários e limpa o formulário
+      setUsers(_users);
+      setUsersDialog(false);
+      setUser(emptyUser);
   };
   
 
@@ -112,6 +151,7 @@ const User = () => {
         setUsersDialog(true);
     };
     /* editar e excluir*/
+    
     const confirmDeleteUser = (user: Auth.User) => {
         setUser(user);
         setDeleteUserDialog(true);
@@ -120,18 +160,34 @@ const User = () => {
 
 
    /*exclui produto */
-    const deleteUser = () => {
-        let _users = (users as any)?.filter((val: any) => val.id !== user.id);
-        setUsers(_users);
-        setDeleteUserDialog(false);
-        setUser(emptyUser);
-        toast.current?.show({
-            severity: 'success',
-            summary: 'Sucesso',
-            detail: 'Usuário excluido com sucesso',
-            life: 3000
-        });
-    };
+    const deleteUser = (user: Auth.User) => {
+        UserService.deleteUser(user.id as string)
+          .then(() => {
+            // Remover o usuário da lista local após a exclusão bem-sucedida
+            let _users = (users as any)?.filter((val: any) => val.id !== user.id);
+            setUsers(_users);
+            setDeleteUserDialog(false);
+      
+            // Mostrar mensagem de sucesso com toast
+            toast.current?.show({
+              severity: 'success',
+              summary: 'Sucesso',
+              detail: 'Usuário excluído com sucesso',
+              life: 3000,
+            });
+          })
+          .catch((error) => {
+            console.error("Erro ao excluir o usuário:", error);
+      
+            // Mostrar mensagem de erro com toast
+            toast.current?.show({
+              severity: 'error',
+              summary: 'Erro',
+              detail: 'Erro ao excluir o usuário',
+              life: 3000,
+            });
+          });
+      };
 
     
  /* ta chamndo ele no Toast  criar e atualizar o produto */
@@ -299,7 +355,9 @@ const User = () => {
     const deleteUserDialogFooter = (
         <>
             <Button label="Não" icon="pi pi-times" text onClick={hideDeleteUserDialog} />
-            <Button label="Sim" icon="pi pi-check" text onClick={deleteUser} />
+   
+            <Button label="Sim" icon="pi pi-check" text onClick={() => deleteUser(user)} />
+
         </>
     );
     const deleteUsersDialogFooter = (
@@ -349,7 +407,7 @@ const User = () => {
                
                     <Dialog visible={usersDialog} style={{ width: '450px' }} header="Cadastro de usuário" modal className="p-fluid" footer={userDialogFooter} onHide={hideDialog}>
                         <div className="field">
-                            <label htmlFor="primeironome">Name</label>
+                            <label htmlFor="primeironome">Nome</label>
                             <InputText
                                 id="primeiroNome"
                                 value={user.primeiroNome}
@@ -410,45 +468,7 @@ const User = () => {
 
                             {submitted && !user.email && <small className="p-invalid">Email é obrigatório.</small>}
                         </div>
-                        
-
-                            <div className="field">
-                            <label htmlFor="password">Senha</label>
-                            <InputText
-                                id="password"
-                                type="password"
-                                value={user.password}
-                                onChange={(e) => onInputChange(e, 'password')}
-                                required
-                                autoComplete="new-password"
-                                className={classNames({
-                                'p-invalid': submitted && !user.password
-                                })}
-                            />
-                            {submitted && !user.password && <small className="p-invalid">Senha é obrigatória.</small>}
-                            </div>
-
-                            <div className="field">
-                            <label htmlFor="confirmPassword">Confirme a Senha</label>
-                            <InputText
-                                id="confirmPassword"
-                                type="password"
-                                value={user.confirmPassword}
-                                onChange={(e) => onInputChange(e, 'confirmPassword')}
-                                required
-                                autoComplete="new-password"
-                                className={classNames({
-                                'p-invalid': submitted && !user.confirmPassword
-                                })}
-                            />
-                            {submitted && !user.confirmPassword && <small className="p-invalid">Confirme a senha é obrigatória.</small>}
-                            {submitted && user.password && user.confirmPassword && user.password !== user.confirmPassword && (
-                            <small className="p-invalid">As senhas não coincidem.</small>
-        )}
-                            </div>
-
- 
-                        
+    
                     </Dialog>
                 
                     <Dialog visible={deleteUserDialog} style={{ width: '450px' }} header="Confirmar" modal footer={deleteUserDialogFooter} onHide={hideDeleteUserDialog}>

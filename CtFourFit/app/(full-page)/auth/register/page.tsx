@@ -38,7 +38,7 @@ const RegisterPage = () => {
         SobreNome: sobrenome,
         Email: email,
         Password: password,
-        PasswordConfirmn: passwordConfirm,
+        PasswordConfirm: passwordConfirm,
         Celular: celular
       });
       // Redirecione para a página de login após o registro

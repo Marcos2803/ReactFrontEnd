@@ -6,8 +6,6 @@ declare namespace Auth{
         sobreNome?: string;
         celular?: string;
         email?: string;
-        password?: string;
-        confirmPassword?: string;
         [key: string]: any;
        
     };

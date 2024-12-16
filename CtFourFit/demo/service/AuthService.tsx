@@ -22,11 +22,11 @@ export const UserService = {
   },
 
   // Criar usuário
-  createUser(userData: any) {
+  createUser(userData: Auth.User) {
     return api.post('/auth/register', userData)
 
       .then((response) => {
-        return response.data as Auth.User[];
+        return response.data;
       })
       .catch((error) => {
         console.error('Erro ao criar usuário:', error);
@@ -35,8 +35,8 @@ export const UserService = {
   },
 
   // Atualizar usuário
-  updateUser(userId: string, updatedData: Partial<Auth.User>) {
-    return api.put(`/auth/atualizarusuario/${userId}`, updatedData)
+  updateUser(userId: string, updatedData: Auth.User) {
+    return api.put(`/auth/update/${userId}`, updatedData)
       .then((response) => {
         return response.data;
       })
@@ -46,8 +46,8 @@ export const UserService = {
   },
 
   // Deletar usuário
-  deleteUser(userId: string) {
-    return api.delete(`/auth/deletarusuario/${userId}`)
+  deleteUser(id: string) {
+    return api.delete(`/auth/delete/${id}`)
       .then((response) => {
         return response.data;
       })
@@ -55,6 +55,7 @@ export const UserService = {
         throw error;
       });
   },
+  
 };
 
 
